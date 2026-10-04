@@ -53,6 +53,7 @@ test('root-relative mapping is explicit; remote images and unsupported paths exp
   const base = f.commit(); f.write('public/img/a.png', 'after'); const head = f.commit();
   const noMap = review({ repo: f.repo, base, head });
   assert.equal(noMap.assets[0].documents.length, 0);
+  assert.match(format(noMap), /No supported Markdown references found in either snapshot\. This does not prove the asset is unused\./);
   assert.ok(noMap.skippedReferences.some(r => r.reason.includes('--site-root')));
   const result = review({ repo: f.repo, base, head, siteRoot: 'public' });
   assert.equal(result.assets[0].documents[0].after[0].altSource, 'root');

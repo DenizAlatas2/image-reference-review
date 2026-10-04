@@ -167,7 +167,7 @@ function format(report) {
   for (const asset of report.assets) {
     lines.push(`${asset.status} ${JSON.stringify(asset.before === asset.after ? asset.after :
       `${asset.before ?? '(added)'} → ${asset.after ?? '(deleted)'}`)}`);
-    if (!asset.documents.length) lines.push('  No supported Markdown references found in either snapshot.');
+    if (!asset.documents.length) lines.push('  No supported Markdown references found in either snapshot. This does not prove the asset is unused.');
     for (const doc of asset.documents) {
       lines.push(`  ${JSON.stringify(doc.afterDocument || doc.beforeDocument)} [document ${doc.documentChanged ? 'changed' : 'unchanged'}; alt source ${doc.altComparison}]`);
       for (const side of ['before', 'after']) {

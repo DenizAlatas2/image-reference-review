@@ -69,9 +69,9 @@ A reviewer can inspect the directional label while leaving the generic one alone
 
 Supports local image references in `.md` and `.markdown`, including inline/reference-style images, relative paths, percent-encoded paths, repeated uses and Git-detected renames. It reports source labels, not computed DOM alt text.
 
-HTML/MDX, generated asset pipelines, remote images, image contents and accessibility conformance are outside scope. Paths and Markdown must be UTF-8. This is not a sandbox for hostile repositories and has no large-repository performance claim.
+HTML/MDX, templated/generated destinations, generated asset pipelines, remote images, image contents and accessibility conformance are outside scope. A report with no supported references is not proof an asset is unused or safe to delete. Skipped-reference diagnostics cover parsed image tokens, not every unrecognized construct. Paths and Markdown must be UTF-8. This is not a sandbox for hostile repositories and has no large-repository performance claim.
 
-[Detailed behavior, limitations and motivating public discussions](REFERENCE.md) explain exactly what is covered. Only synthetic fixtures have been run; those discussions are not production validation or evidence of demand.
+[Detailed behavior, limitations and evidence](REFERENCE.md) explain exactly what is covered. The 11 tests and demo use synthetic fixtures. One historical real-repository run, [github/docs #24041](https://github.com/github/docs/pull/24041), found no documents beyond the normal diff and did not recognize two Liquid-templated image references. The unchanged-document benefit remains demonstrated only by synthetic fixtures; this is not production validation or evidence of demand.
 
 ## Development and distribution
 
