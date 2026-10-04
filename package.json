@@ -1,0 +1,31 @@
+{
+  "name": "image-reference-review-prototype",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Offline advisory review of changed image assets and their Markdown references",
+  "main": "review.cjs",
+  "bin": {
+    "image-reference-review": "cli.cjs"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "marked": "17.0.5"
+  },
+  "license": "MIT",
+  "author": "Deniz Alatas",
+  "files": [
+    "cli.cjs",
+    "review.cjs",
+    "README.md",
+    "REFERENCE.md",
+    "LICENSE",
+    "AGENTS.md",
+    "examples/",
+    "test/"
+  ]
+}

@@ -1,0 +1,9 @@
+node_modules/
+*.log
+test-results.txt
+*.zip
+*.tgz
+.npm/
+.cache/
+coverage/
+.DS_Store
