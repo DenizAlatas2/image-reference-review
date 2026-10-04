@@ -1,0 +1,17 @@
+Ordinary changed-file list:
+images/settings panel.svg
+
+Image reference review (advisory)
+4a7baaee5cc9d0e53932b54c8892bf209bb99fb5 → 42a373aff822db81789335899d9527bffa1e1c78
+1 changed image asset(s). Unchanged alt text can be correct.
+
+M "images/settings panel.svg"
+  "guide.md" [document unchanged; alt source unchanged]
+    before image #1: "Settings panel" ("images/settings panel.svg")
+    before image #2: "Save button on the left" ("images/settings%20panel.svg")
+    after image #1: "Settings panel" ("images/settings panel.svg")
+    after image #2: "Save button on the left" ("images/settings%20panel.svg")
+  "help/faq.md" [document unchanged; alt source unchanged]
+    before image #1: "Settings panel" ("../images/settings%20panel.svg")
+    after image #1: "Settings panel" ("../images/settings%20panel.svg")
+
