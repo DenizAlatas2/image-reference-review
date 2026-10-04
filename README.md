@@ -16,20 +16,25 @@ This small local prototype is advisory. It does not inspect pixels, generate alt
 
 ## Setup
 
-Requires Git, npm and Node **22.12.0 or later**. Node 24 is the tested major version. From a downloaded or cloned copy of this project:
+Requires Git, npm and Node **22.12.0 or later**. For a new copy:
 
 ```sh
+git clone https://github.com/DenizAlatas2/image-reference-review.git
 cd image-reference-review
 npm ci --ignore-scripts
 npm test
 node examples/demo.cjs
 ```
 
+Already cloned or downloaded a ZIP? Open that project's folder and start at `npm ci` above.
+
+Expect 11 passing tests, then a demo report with **one changed image asset** and **two unchanged documents**, `guide.md` and `help/faq.md`. The [example below](#example) explains what to review.
+
 The only runtime dependency is exactly `marked@17.0.5`; `package-lock.json` pins its registry artifact and integrity hash. Setup downloads that dependency. Reviewing a repository is offline and never fetches missing Git objects.
 
-**Verification:** all 11 synthetic tests and the demo passed on Linux with Node 24.19.0 and Git 2.52.0. An isolated temporary source copy also passed using a copy of the already-installed dependency. The lockfile was generated with npm 11.9.0 using official registry metadata and scripts disabled. A fresh `npm ci` download and other operating systems/Node versions have **not** been tested.
+**Verification:** fresh `npm ci --ignore-scripts` installs from the official npm registry passed with **Node 22.12.0 / npm 10.9.0** and **Node 24.19.0 / npm 11.9.0** on Linux with Git 2.52.0. Each used a separate source copy, empty dependency cache and home directory, and no existing `node_modules` or `NODE_PATH`; audit and funding requests were disabled. All 11 synthetic tests and the demo passed in both configurations. Other operating systems and Node versions have **not** been tested.
 
-Why 22.12.0? The installed marked package declares Node >=20, but this tool uses CommonJS `require()` to load marked's ESM entry point. [Node's module history](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require) records unflagged support from 22.12.0 in the 22.x line. The package sets that supported baseline rather than promising every Node 20 or early Node 22 release works.
+Why 22.12.0? The installed marked package declares Node >=20, but this tool uses CommonJS `require()` to load marked's ESM entry point. [Node's module history](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require) records unflagged support from 22.12.0 in the 22.x line. The package sets that supported baseline rather than promising every Node 20 or early Node 22 release works. Node 22.12.0 prints an `ExperimentalWarning` for this module loading; the tested commands still complete successfully.
 
 ## Use
 
