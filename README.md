@@ -1,6 +1,16 @@
 # Image reference review
 
+Replaced a screenshot, but the Markdown that describes it never appeared in the diff?
+
 Find changed image assets and the Markdown documents that refer to them, including documents absent from the Git diff. Review their before/after label source alongside an image diff.
+
+Use it when:
+
+- A refreshed screenshot moves a button, but its image label still says "on the left".
+- One diagram appears in several guides and you want to find the labels to review together.
+- An image is renamed or deleted and you want to find Markdown references still using its old path.
+
+Compare the commits before and after the image change, open the reported documents, and inspect their labels alongside the image in your usual diff viewer. The [demo below](#example) walks through a moved button referenced by two unchanged documents.
 
 This small local prototype is advisory. It does not inspect pixels, generate alt text, or decide whether a description is correct. An unchanged description may still be right.
 
