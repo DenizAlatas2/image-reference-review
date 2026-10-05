@@ -67,7 +67,7 @@ A reviewer can inspect the directional label while leaving the generic one alone
 
 ### Historical example
 
-An image-only update in [RateCalculator](https://github.com/raiguard/RateCalculator/pull/131) left nearby README prose saying 1.07 extra assemblers while the screenshot showed 1. The later README fix confirms the mismatch.
+[RateCalculator](https://github.com/raiguard/RateCalculator/pull/131) calculates factory production rates in the game Factorio. An updated screenshot showed a different number of extra machines needed, while the README still described the old number. Only image files changed, so that explanation was absent from the normal Git diff. A later README fix confirms the mismatch.
 Comparing `d9e27fb` with `786ef0b` in a retrospective run surfaced the unchanged `README.md` through two screenshot references.
 Both image labels were empty. The report points to the document for a reviewer to compare its prose with the image. It does not read the pixels or diagnose the mismatch.
 
