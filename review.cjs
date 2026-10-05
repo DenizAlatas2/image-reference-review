@@ -41,7 +41,7 @@ function tree(repo, commit) {
 
 function changes(repo, base, head) {
   const parts = git(repo, ['diff', '--no-ext-diff', '--no-textconv', '--ignore-submodules=all',
-    '--find-renames', '--name-status', '-z', base, head, '--']).split('\0');
+    '--find-renames', '--no-relative', '--name-status', '-z', base, head, '--']).split('\0');
   const result = [];
   for (let i = 0; i < parts.length && parts[i];) {
     const status = parts[i++];

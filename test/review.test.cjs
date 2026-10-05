@@ -137,6 +137,47 @@ test('explicit repository wins over inherited Git repository, object and config 
   assert.equal(report.assets[0].documents[0].after[0].altSource, 'selected');
 });
 
+test('subdirectory invocation ignores diff.relative without changing repository state', t => {
+  const f = fixture(t);
+  const svg = fill => `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="${fill}"/></svg>\n`;
+  f.write('docs/panel.svg', svg('black')); f.write('images/banner.svg', svg('red'));
+  f.write('docs/guide.md', '![Settings panel](panel.svg)\n\n![Project banner](../images/banner.svg)\n');
+  const base = f.commit();
+  f.write('docs/panel.svg', svg('blue')); f.write('images/banner.svg', svg('green'));
+  const head = f.commit();
+  f.git('config', '--local', 'diff.relative', 'true');
+  const snapshot = () => ['.git/config', '.git/index', 'docs/panel.svg', 'images/banner.svg', 'docs/guide.md']
+    .map(name => fs.readFileSync(path.join(f.repo, name)));
+  const originalState = snapshot();
+  const cli = path.join(__dirname, '../cli.cjs');
+  const invocations = [
+    { name: 'root control', args: ['--repo', f.repo], cwd: f.repo },
+    { name: 'explicit subdirectory', args: ['--repo', path.join(f.repo, 'docs')], cwd: f.repo },
+    { name: 'default repository from subdirectory', args: [], cwd: path.join(f.repo, 'docs') },
+  ];
+  const reports = invocations.map(({ name, args, cwd }) => {
+    const result = spawnSync(process.execPath, [cli, ...args, '--json', base, head], { cwd, encoding: 'utf8' });
+    assert.equal(result.status, 0, `${name}: ${result.stderr}`);
+    assert.deepEqual(snapshot(), originalState, `${name}: repository state changed`);
+    return JSON.parse(result.stdout);
+  });
+  const expected = reports[0];
+  assert.deepEqual(expected.assets.map(a => a.after), ['docs/panel.svg', 'images/banner.svg']);
+  assert.deepEqual(expected.skippedReferences, []);
+  for (const [i, asset] of expected.assets.entries()) {
+    assert.equal(asset.documents.length, 1);
+    const doc = asset.documents[0];
+    assert.equal(doc.beforeDocument, 'docs/guide.md'); assert.equal(doc.afterDocument, 'docs/guide.md');
+    assert.equal(doc.documentChanged, false); assert.equal(doc.altComparison, 'unchanged');
+    for (const side of ['before', 'after']) {
+      assert.equal(doc[side].length, 1);
+      assert.equal(doc[side][0].altSource, ['Settings panel', 'Project banner'][i]);
+      assert.equal(doc[side][0].targetExists, true);
+    }
+  }
+  assert.deepEqual(reports.slice(1), [expected, expected]);
+});
+
 test('invalid UTF-8 Markdown is rejected rather than replacement-decoded', t => {
   const f = fixture(t); f.write('a.png', 'before'); f.write('doc.md', Buffer.from([0x23, 0x20, 0xff, 0x0a]));
   const base = f.commit(); f.write('a.png', 'after'); const head = f.commit();
