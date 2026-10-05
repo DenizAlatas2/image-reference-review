@@ -65,13 +65,19 @@ help/faq.md: "Settings panel"
 
 A reviewer can inspect the directional label while leaving the generic one alone. The CLI does not infer that either is wrong. See [actual example output](examples/output.txt) for the full report; synthetic commit IDs change on each run.
 
+### Historical example
+
+An image-only update in [RateCalculator](https://github.com/raiguard/RateCalculator/pull/131) left nearby README prose saying 1.07 extra assemblers while the screenshot showed 1. The later README fix confirms the mismatch.
+Comparing `d9e27fb` with `786ef0b` in a retrospective run surfaced the unchanged `README.md` through two screenshot references.
+Both image labels were empty. The report points to the document for a reviewer to compare its prose with the image. It does not read the pixels or diagnose the mismatch.
+
 ## Scope
 
 Supports local image references in `.md` and `.markdown`, including inline/reference-style images, relative paths, percent-encoded paths, repeated uses and Git-detected renames. It reports source labels, not computed DOM alt text.
 
 HTML/MDX, templated/generated destinations, generated asset pipelines, remote images, image contents and accessibility conformance are outside scope. A report with no supported references is not proof an asset is unused or safe to delete. Skipped-reference diagnostics cover parsed image tokens, not every unrecognized construct. Paths and Markdown must be UTF-8. This is not a sandbox for hostile repositories and has no large-repository performance claim.
 
-[Detailed behavior, limitations and evidence](REFERENCE.md) explain exactly what is covered. The 11 tests and demo use synthetic fixtures. One historical real-repository run, [github/docs #24041](https://github.com/github/docs/pull/24041), found no documents beyond the normal diff and did not recognize two Liquid-templated image references. The unchanged-document benefit remains demonstrated only by synthetic fixtures; this is not production validation or evidence of demand.
+[Detailed behavior, limitations and evidence](REFERENCE.md) explain exactly what is covered. The 11 tests and demo use synthetic fixtures. A historical run on [github/docs #24041](https://github.com/github/docs/pull/24041) found no documents beyond the normal diff and did not recognize two Liquid-templated image references. These retrospective checks do not establish production readiness or adoption demand.
 
 ## Development and distribution
 
