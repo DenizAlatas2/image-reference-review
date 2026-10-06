@@ -80,13 +80,18 @@ function localPath(doc, href, siteRoot) {
   return { path: resolved };
 }
 
-function references(repo, files, siteRoot, diagnostics, side) {
+function references(repo, files, siteRoot, diagnostics, side, tokensByBlob) {
   const byAsset = new Map();
   for (const [doc, file] of files) {
     if (!MARKDOWN.test(doc)) continue;
-    const source = git(repo, ['cat-file', 'blob', file.oid]);
+    if (!tokensByBlob.has(file.oid)) {
+      const source = git(repo, ['cat-file', 'blob', file.oid]);
+      const tokens = imageTokens(lexer(source, { gfm: true }))
+        .map(({ href, text }) => Object.freeze({ href, text }));
+      tokensByBlob.set(file.oid, Object.freeze(tokens));
+    }
     let occurrence = 0;
-    for (const token of imageTokens(lexer(source, { gfm: true }))) {
+    for (const token of tokensByBlob.get(file.oid)) {
       occurrence++;
       const destination = localPath(doc, token.href, siteRoot);
       if (!destination.path) {
@@ -119,8 +124,10 @@ function review({ repo = '.', base, head, siteRoot }) {
   const documentRenames = new Map(delta.filter(c => c.status.startsWith('R') &&
     MARKDOWN.test(c.before) && MARKDOWN.test(c.after)).map(c => [c.before, c.after]));
   const diagnostics = [];
-  const beforeRefs = references(repo, beforeTree, siteRoot, diagnostics, 'before');
-  const afterRefs = references(repo, afterTree, siteRoot, diagnostics, 'after');
+  // Only source tokens are shared; paths and diagnostics belong to each document/snapshot.
+  const tokensByBlob = new Map();
+  const beforeRefs = references(repo, beforeTree, siteRoot, diagnostics, 'before', tokensByBlob);
+  const afterRefs = references(repo, afterTree, siteRoot, diagnostics, 'after', tokensByBlob);
   const assets = delta.filter(c => (c.before && IMAGE.test(c.before) && beforeTree.has(c.before)) ||
     (c.after && IMAGE.test(c.after) && afterTree.has(c.after))).map(change => {
     // Retain references to missing paths, including stale links after deletion/rename.

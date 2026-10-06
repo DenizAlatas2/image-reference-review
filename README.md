@@ -28,7 +28,7 @@ node examples/demo.cjs
 
 Already cloned or downloaded a ZIP? Open that project's folder and start at `npm ci` above.
 
-Expect 12 passing tests, then a demo report with **one changed image asset** and **two unchanged documents**, `guide.md` and `help/faq.md`. The [example below](#example) explains what to review.
+Expect 13 passing tests, then a demo report with **one changed image asset** and **two unchanged documents**, `guide.md` and `help/faq.md`. The [example below](#example) explains what to review.
 
 The only runtime dependency is exactly `marked@17.0.5`; `package-lock.json` pins its registry artifact and integrity hash. Setup downloads that dependency. Reviewing a repository is offline and never fetches missing Git objects.
 
@@ -77,7 +77,7 @@ Supports local image references in `.md` and `.markdown`, including inline/refer
 
 HTML/MDX, templated/generated destinations, generated asset pipelines, remote images, image contents and accessibility conformance are outside scope. A report with no supported references is not proof an asset is unused or safe to delete. Skipped-reference diagnostics cover parsed image tokens, not every unrecognized construct. Paths and Markdown must be UTF-8. This is not a sandbox for hostile repositories and has no large-repository performance claim.
 
-[Detailed behavior, limitations and evidence](REFERENCE.md) explain exactly what is covered. The 12 tests and demo use synthetic fixtures. A historical run on [github/docs #24041](https://github.com/github/docs/pull/24041) found no documents beyond the normal diff and did not recognize two Liquid-templated image references. These retrospective checks do not establish production readiness or adoption demand.
+[Detailed behavior, limitations and evidence](REFERENCE.md) explain exactly what is covered. The 13 tests and demo use synthetic fixtures. A historical run on [github/docs #24041](https://github.com/github/docs/pull/24041) found no documents beyond the normal diff and did not recognize two Liquid-templated image references. These retrospective checks do not establish production readiness or adoption demand.
 
 ## Development and distribution
 

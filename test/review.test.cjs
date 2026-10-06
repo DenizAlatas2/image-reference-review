@@ -184,6 +184,68 @@ test('invalid UTF-8 Markdown is rejected rather than replacement-decoded', t => 
   assert.throws(() => review({ repo: f.repo, base, head }), /Invalid UTF-8 in Git cat-file output/);
 });
 
+test('one blob parse per review preserves repeated and moved documents, paths and diagnostics', t => {
+  const f = fixture(t);
+  const source = '![Panel](panel.svg)\n\n![Outside](../outside.png)\n\n![Remote](https://example.invalid/panel.svg)\n';
+  for (const folder of ['', 'left/', 'right/']) f.write(`${folder}guide.md`, source);
+  const images = ['panel.svg', 'left/panel.svg', 'right/panel.svg', 'moved/panel.svg'];
+  for (const image of images) f.write(image, `Before ${image}\n`);
+  const base = f.commit();
+  f.git('mv', 'left/guide.md', 'moved/guide.md');
+  for (const image of images) f.write(image, `After ${image}\n`);
+  const head = f.commit();
+  const script = `
+    const cp = require('node:child_process');
+    const original = cp.spawnSync;
+    let reads = 0;
+    cp.spawnSync = (command, args, options) => {
+      if (command === 'git' && args.includes('cat-file')) reads++;
+      return original(command, args, options);
+    };
+    const { review } = require(process.argv[1]);
+    const options = JSON.parse(process.argv[2]);
+    const first = review(options);
+    const firstReads = reads;
+    reads = 0;
+    const second = review(options);
+    process.stdout.write(JSON.stringify({ first, second, firstReads, secondReads: reads }));
+  `;
+  const run = spawnSync(process.execPath, ['-e', script, path.join(__dirname, '../review.cjs'),
+    JSON.stringify({ repo: f.repo, base, head })], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  const { first, second, firstReads, secondReads } = JSON.parse(run.stdout);
+  assert.equal(firstReads, 1); assert.equal(secondReads, 1);
+  assert.deepEqual(first, second);
+  assert.equal(first.assets.length, 4);
+  const pairs = new Map(first.assets.map(asset => [asset.after, asset.documents[0]]));
+  for (const [image, doc] of pairs) {
+    assert.equal(first.assets.find(asset => asset.after === image).documents.length, 1);
+    for (const side of ['before', 'after']) for (const ref of doc[side]) {
+      assert.equal(ref.assetPath, image); assert.equal(ref.occurrence, 1);
+      assert.equal(ref.altSource, 'Panel'); assert.equal(ref.targetExists, true);
+    }
+  }
+  assert.equal(pairs.get('panel.svg').documentChanged, false);
+  assert.equal(pairs.get('right/panel.svg').documentChanged, false);
+  assert.equal(pairs.get('left/panel.svg').altComparison, 'references-removed');
+  assert.equal(pairs.get('moved/panel.svg').altComparison, 'references-added');
+  for (const image of ['left/panel.svg', 'moved/panel.svg']) {
+    assert.equal(pairs.get(image).beforeDocument, 'left/guide.md');
+    assert.equal(pairs.get(image).afterDocument, 'moved/guide.md');
+  }
+  assert.deepEqual(first.skippedReferences.map(({ side, document, occurrence, reason }) =>
+    [side, document, occurrence, reason]), [
+    ['before', 'guide.md', 2, 'destination outside repository'],
+    ['before', 'guide.md', 3, 'non-local destination'],
+    ['before', 'left/guide.md', 3, 'non-local destination'],
+    ['before', 'right/guide.md', 3, 'non-local destination'],
+    ['after', 'guide.md', 2, 'destination outside repository'],
+    ['after', 'guide.md', 3, 'non-local destination'],
+    ['after', 'moved/guide.md', 3, 'non-local destination'],
+    ['after', 'right/guide.md', 3, 'non-local destination'],
+  ]);
+});
+
 test('invalid UTF-8 tracked paths are rejected rather than replacement-decoded', t => {
   const f = fixture(t); f.write('a.png', 'before');
   const invalidPath = Buffer.concat([Buffer.from(f.repo + '/bad-'), Buffer.from([0xff]), Buffer.from('.md')]);
